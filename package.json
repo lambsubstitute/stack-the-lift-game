@@ -1,0 +1,23 @@
+{
+  "name": "stack-the-lift-game",
+  "version": "0.1.0",
+  "description": "A tower you build, let, and then have to keep moving.",
+  "type": "module",
+  "scripts": {
+    "test": "node --test \"test/**/*.test.js\"",
+    "test:watch": "node --test --watch \"test/**/*.test.js\"",
+    "build": "node tools/build.mjs",
+    "dev": "node tools/build.mjs --watch",
+    "record": "node test/golden/record.mjs"
+  },
+  "license": "MIT",
+  "private": true,
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/lambsubstitute/stack-the-lift-game.git"
+  },
+  "bugs": {
+    "url": "https://github.com/lambsubstitute/stack-the-lift-game/issues"
+  },
+  "homepage": "https://github.com/lambsubstitute/stack-the-lift-game#readme"
+}

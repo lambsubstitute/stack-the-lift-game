@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>STACK</title>
+<style>
+/*__CSS__*/
+</style>
+</head>
+<body>
+<div id="panel">
+  <div>
+    <h1>STACK</h1>
+    <div class="stars" id="stars">★<s>★★★★</s></div>
+  </div>
+
+  <div class="grp">
+    <div class="money" id="money">$0</div>
+    <div class="sub" id="daylbl">Day 1 · 06:00</div>
+  </div>
+
+  <div class="grp">
+    <div class="lbl">Time</div>
+    <div class="row">
+      <button id="sp0">❚❚</button>
+      <button id="sp1">×1</button>
+      <button id="sp4" class="on">×4</button>
+      <button id="sp20">×20</button>
+      <button id="sp60">×60</button>
+    </div>
+  </div>
+
+  <div class="grp" id="goalBox">
+    <div class="lbl">Next rating</div>
+    <div class="goalhead"><b id="goalTitle">★★</b><em id="goalPct">0%</em></div>
+    <div class="pbar"><i id="goalBar"></i></div>
+    <div id="goalList"></div>
+  </div>
+
+  <div class="grp">
+    <div class="lbl">Tower</div>
+    <div class="stats">
+      <div><span>Population</span><b id="sPop">0</b></div>
+      <div><span>Floors</span><b id="sFl">1</b></div>
+      <div><span>Waiting now</span><b id="sWait">0</b></div>
+      <div><span>Avg wait today</span><b id="sAvg">—</b></div>
+      <div><span>Given up today</span><b id="sGave">0</b></div>
+      <div><span>Rent due today</span><b id="sRent">$0</b></div>
+    </div>
+  </div>
+
+  <div class="grp">
+    <div class="lbl">Build</div>
+    <button class="primary" id="addFloor">Add floor &mdash; <span id="floorCost">$0</span></button>
+    <div class="mini" style="margin-top:6px">Click any floor in the tower to lease or inspect it.</div>
+  </div>
+
+  <div class="grp" id="selBox" style="display:none">
+    <div class="lbl">Selected</div>
+    <div class="sel" id="sel"></div>
+  </div>
+
+  <div class="grp" id="leaseBox" style="display:none">
+    <div class="lbl">Lease this floor</div>
+    <div class="tlist" id="tlist"></div>
+  </div>
+
+  <div class="grp" id="amenBox" style="display:none">
+    <div class="lbl">Amenities &mdash; one of each</div>
+    <div class="tlist" id="alist"></div>
+  </div>
+
+  <div class="grp">
+    <div class="lbl">In the tower</div>
+    <div id="amenHave" style="display:none"></div>
+  </div>
+
+  <div class="grp" id="upgBox" style="display:none">
+    <div class="lbl">Upgrade lift</div>
+    <div class="mini" id="upgTitle" style="margin-bottom:7px"></div>
+    <div id="upgList"></div>
+  </div>
+
+  <div class="grp">
+    <div class="lbl">Lifts</div>
+    <div class="tlist" id="shaftList" style="margin-bottom:7px"></div>
+    <div class="row" style="margin-bottom:4px">
+      <input type="number" id="sBot" value="1" min="0">
+      <input type="number" id="sTop" value="5" min="0">
+    </div>
+    <label class="ck" style="margin-bottom:6px">
+      <input type="checkbox" id="expr"> Express &mdash; serves the lobby, skips everything between
+    </label>
+    <button class="primary" id="addShaft">Build shaft &mdash; <span id="shaftCost">$0</span></button>
+    <button id="extendAll" style="margin-top:4px">Extend all to top &mdash; <span id="extCost">$0</span></button>
+    <div class="stats" style="margin-top:7px">
+      <div><span>Rentable bays</span><b id="sArea">—</b></div>
+      <div><span>Lost to cores</span><b id="sLost" class="bad">—</b></div>
+    </div>
+  </div>
+
+  <div class="spacer"></div>
+  <div class="mini" id="nextStar"></div>
+</div>
+
+<div id="stage">
+  <canvas id="cv"></canvas>
+  <div id="toast"></div>
+  <div id="tut"></div>
+  <div id="eod"><div class="card">
+    <h2 id="eodTitle">End of day</h2>
+    <div class="stats" id="eodStats"></div>
+    <div class="note" id="eodNote"></div>
+    <button class="primary" id="eodNext">Open tomorrow</button>
+  </div></div>
+</div>
+<script>
+//__JS__
+</script>
+</body>
+</html>

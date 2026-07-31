@@ -1,0 +1,178 @@
+[
+  {
+    "scenario": "small tower, one lift",
+    "population": 196,
+    "coreBays": 8,
+    "days": [
+      {
+        "trips": 392,
+        "gaveUp": 0,
+        "waitSum": 1981.25,
+        "rent": 16800,
+        "maint": 680,
+        "star": 5,
+        "satisfaction": 86,
+        "tenants": 7
+      },
+      {
+        "trips": 392,
+        "gaveUp": 0,
+        "waitSum": 1948.75,
+        "rent": 17598,
+        "maint": 680,
+        "star": 5,
+        "satisfaction": 94,
+        "tenants": 7
+      }
+    ]
+  },
+  {
+    "scenario": "mid tower, three lifts",
+    "population": 518,
+    "coreBays": 60,
+    "days": [
+      {
+        "trips": 1463,
+        "gaveUp": 336,
+        "waitSum": 24540,
+        "rent": 40794,
+        "maint": 5100,
+        "star": 5,
+        "satisfaction": 68.32,
+        "tenants": 19
+      },
+      {
+        "trips": 1511,
+        "gaveUp": 313,
+        "waitSum": 31457.5,
+        "rent": 38276,
+        "maint": 5100,
+        "star": 5,
+        "satisfaction": 59.05,
+        "tenants": 19
+      }
+    ]
+  },
+  {
+    "scenario": "tall tower, under-lifted",
+    "population": 784,
+    "coreBays": 60,
+    "days": [
+      {
+        "trips": 1834,
+        "gaveUp": 678,
+        "waitSum": 100297.5,
+        "rent": 60339,
+        "maint": 5100,
+        "star": 5,
+        "satisfaction": 63.66,
+        "tenants": 29
+      }
+    ]
+  },
+  {
+    "scenario": "upgraded lifts",
+    "population": 616,
+    "coreBays": 48,
+    "days": [
+      {
+        "trips": 1489,
+        "gaveUp": 509,
+        "waitSum": 27338.75,
+        "rent": 47997,
+        "maint": 6691,
+        "star": 5,
+        "satisfaction": 64.09,
+        "tenants": 23
+      }
+    ]
+  },
+  {
+    "scenario": "express plus escalator podium",
+    "population": 550,
+    "coreBays": 84,
+    "days": [
+      {
+        "trips": 1309,
+        "gaveUp": 9,
+        "waitSum": 20876.12,
+        "rent": 48912,
+        "maint": 6408,
+        "star": 5,
+        "satisfaction": 85.13,
+        "tenants": 23
+      }
+    ]
+  },
+  {
+    "scenario": "stairs only, no lifts",
+    "population": 140,
+    "coreBays": 10,
+    "days": [
+      {
+        "trips": 280,
+        "gaveUp": 0,
+        "waitSum": 14313.48,
+        "rent": 11341,
+        "maint": 30,
+        "star": 5,
+        "satisfaction": 76.8,
+        "tenants": 5
+      }
+    ]
+  },
+  {
+    "scenario": "amenities change rent and traffic",
+    "population": 530,
+    "coreBays": 66,
+    "days": [
+      {
+        "trips": 1745,
+        "gaveUp": 303,
+        "waitSum": 32321.25,
+        "rent": 53615,
+        "maint": 5610,
+        "star": 5,
+        "satisfaction": 76.67,
+        "tenants": 21
+      },
+      {
+        "trips": 1863,
+        "gaveUp": 214,
+        "waitSum": 35011.25,
+        "rent": 54130,
+        "maint": 5610,
+        "star": 5,
+        "satisfaction": 78.52,
+        "tenants": 21
+      }
+    ]
+  },
+  {
+    "scenario": "mixed-use, four lifts, two days",
+    "population": 558,
+    "coreBays": 104,
+    "days": [
+      {
+        "trips": 1801,
+        "gaveUp": 64,
+        "waitSum": 30447.5,
+        "rent": 54623,
+        "maint": 8840,
+        "star": 5,
+        "satisfaction": 82.16,
+        "tenants": 25
+      },
+      {
+        "trips": 1806,
+        "gaveUp": 65,
+        "waitSum": 32441.25,
+        "rent": 55614,
+        "maint": 8840,
+        "star": 5,
+        "satisfaction": 85.32,
+        "tenants": 25
+      }
+    ]
+  }
+]
