@@ -2,8 +2,8 @@
 
 import { CONN, DAY_START, GIVE_UP, MAX_FLOOR, OUTSIDE, WALK_SPD } from './config.js';
 import { connBay, linkAt } from './connectors.js';
-import { ctrlOf, serves, stepCar } from './lifts.js';
-import { beginTrip, finishTrip, scheduleAll, walkTargetX } from './people.js';
+import { ctrlOf, legDest, serves, stepCar } from './lifts.js';
+import { beginTrip, finishTrip, nextLeg, scheduleAll, walkTargetX } from './people.js';
 import { rnd } from './rng.js';
 import { G, height } from './state.js';
 import { clamp } from './util.js';
@@ -63,10 +63,13 @@ export function step(dt){
       p.cT+=dt; p.cP=clamp(p.cT/dur,0,1);
       if(p.cP>=1){
         p.floor+=p.cDir; p.cT=0; p.cP=0;
-        if(p.floor===p.dest){ finishTrip(p); p.x=connBay(li)+0.5; }
+        if(p.floor===legDest(p)){ p.x=connBay(li)+0.5; nextLeg(p); }
         else if(!linkAt(p.cDir>0?p.floor:p.floor-1)){ p.state='settled'; p.x=p.spot; }
         else { p.x=connBay(p.cDir>0?p.floor:p.floor-1)+0.5; }
       }
+
+    } else if(p.state==='transfer'){
+      nextLeg(p);
 
     } else if(p.state==='settle'){
       const d=p.spot-p.x, m=WALK_SPD*dt;
@@ -99,7 +102,7 @@ export function step(dt){
       for(let f=0;f<height();f++){
         for(const p of G.queue[f]){
           if(ctrlOf(p.shaft)<1) continue;
-          const opts=grp.filter(s=>serves(s,f)&&serves(s,p.dest));
+          const opts=grp.filter(s=>serves(s,f)&&serves(s,legDest(p)));
           if(opts.length<2) continue;
           const score = s => {
             const c=s.car;
@@ -130,7 +133,7 @@ export function step(dt){
   for(let f=0;f<height();f++){
     for(const p of G.queue[f]){
       const c=p.shaft.car;
-      if(p.dest>f) c.callUp.add(f); else c.callDown.add(f);
+      if(legDest(p)>f) c.callUp.add(f); else c.callDown.add(f);
     }
   }
 

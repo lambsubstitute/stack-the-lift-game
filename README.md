@@ -68,6 +68,10 @@ Watch the queues. People waiting go dark → **amber** → **red**. The graph at
 bottom is how many are waiting across the day, with yesterday ghosted behind
 today so you can see whether a change actually helped.
 
+**Sky lobbies.** A journey can chain legs — escalator up to a transfer floor,
+express from there — so lifts that start above the lobby are worth building.
+Journey planning is a Dijkstra over a layered graph in `routes.js`.
+
 **Three levers, not one.** More shafts is the obvious answer and the worst one —
 it eats your floor area. Upgrading a shaft's motor, cabin or controller buys
 capacity without taking another bay. And mixing your tenants (offices peak at
@@ -88,7 +92,9 @@ src/
   connectors.js   stairs and escalators
   people.js       population, schedules, and the choice between waiting and climbing
   sim.js          the clock: step(dt)
-  economy.js      rent, satisfaction, amenities, star ratings
+  economy.js      rent, satisfaction, amenities, star ratings, the overdraft
+  routes.js       journey planning over a layered graph — how sky lobbies work
+  save.js         persistence (the building; the population is rebuilt)
   render.js       everything that draws — no game rules live here
   ui.js           the panel: everything you click
   tutorial.js     the opening five steps
@@ -112,7 +118,7 @@ other module is pure enough to unit-test in Node with no browser.
 npm test
 ```
 
-50 tests, no framework — Node's built-in runner.
+65 tests, no framework — Node's built-in runner.
 
 **`golden.test.js` is the important one.** Eight scenarios were recorded from
 the original single-file build *before* the code was split into modules, and
@@ -137,6 +143,8 @@ The rest:
 | `people.test.js` | schedules, the shape of a day, peak timing |
 | `connectors.test.js` | stair/escalator routing and how much a climb is resented |
 | `economy.test.js` | rent, satisfaction, amenities, star progression |
+| `routes.test.js` | multi-leg journeys, the cache, unreachable floors |
+| `save.test.js` | round-tripping a tower, and the overdraft rules |
 | `tutorial.test.js` | the five steps advance on the right actions |
 | `bundle.test.js` | the built file boots in a stub DOM and survives 400 frames |
 
@@ -155,6 +163,11 @@ caught:
   four seconds; average waits came out **worse** than not having it.
 - Amenities granted more patience (+9/day) than bad service cost (−8/day), so a
   well-appointed tower gained satisfaction while its lifts failed.
+- Baking a specific lift into a cached route sent every identical journey to
+  the same car while its neighbours ran empty — stranded went from 9 to 428 on
+  a podium tower. The plan picks the legs; the car is chosen at boarding.
+- Counting a completed trip both when the car unloaded and when the journey
+  finished halved every average wait, which made a one-lift tower look healthy.
 - The skyline's lit windows were recomputed every frame — ~2,400 iterations,
   gated behind "is it dark". The game ran fine all morning and seized up at
   dusk. `bundle.test.js` measures night against midday to stop it regressing.

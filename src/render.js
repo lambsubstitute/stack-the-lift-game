@@ -417,3 +417,6 @@ function drawGraph(w,h){
 }
 
 
+
+/** Drop the cached backdrop; it is rebuilt at the new size on the next frame. */
+export function onResize(){ cityLine=null; bgSil=null; lampGrad=null; draw(); }

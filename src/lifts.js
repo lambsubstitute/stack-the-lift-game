@@ -1,3 +1,7 @@
+/* Where this passenger wants OFF this car — the end of their current leg,
+   which is not necessarily where their journey ends. */
+export const legDest = p => (p.legDest !== undefined ? p.legDest : p.dest);
+
 /* Shafts, cars and dispatch: collective control with directional hall calls. */
 
 import { CONN_BAYS, CORE, OUTSIDE, SHAFT_BASE, SHAFT_PER, UPG, UPG_KEYS } from './config.js';
@@ -51,7 +55,7 @@ export function buildShaft(bot,top,expr){
     car:{y:bot, dir:0, state:'idle', stops:new Set(), callUp:new Set(), callDown:new Set(),
          riders:[], doorT:0, cw:0}});
   G.shafts.sort((a,b)=>a.bay-b.bay);
-  return null;
+  return null;   /* callers invalidate the route cache; see routes.js */
 }
 
 export function upgradeShaft(s,k){
@@ -156,16 +160,16 @@ export function openDoors(s,f){
   if(!ahead){
     const hq=G.queue[f].filter(p=>p.shaft===s);
     c.dir = anyAbove(c,f)?1 : anyBelow(c,f)?-1
-          : hq.some(p=>p.dest>f)?1 : hq.some(p=>p.dest<f)?-1 : 0;
+          : hq.some(p=>legDest(p)>f)?1 : hq.some(p=>legDest(p)<f)?-1 : 0;
   }
   /* Destination dispatch groups a load by where it is going, so a full car
      makes four stops instead of twelve. It still fills the car — departing on
      a part-load gave away more throughput than the saved stops were worth. */
   c.zone=null;
   if(ctrlOf(s)>=2){
-    const mine=G.queue[f].filter(p=>p.shaft===s&&(c.dir===0||Math.sign(p.dest-f)===c.dir));
+    const mine=G.queue[f].filter(p=>p.shaft===s&&(c.dir===0||Math.sign(legDest(p)-f)===c.dir));
     if(mine.length){
-      const seed=c.riders.length?c.riders[0].dest:mine[0].dest;
+      const seed=c.riders.length?legDest(c.riders[0]):legDest(mine[0]);
       c.zone=[seed-4,seed+4];
     }
   }
@@ -182,10 +186,10 @@ export function boarderAt(s,f,zoneOnly){
        alone was worth almost nothing — the initial choice is already good —
        and without hysteresis it actively made waits worse. */
     if(p.shaft!==s && !(ctrlOf(s)>=1 && p.shaft && ctrlOf(p.shaft)>=1)) continue;
-    const want=Math.sign(p.dest-f);
+    const want=Math.sign(legDest(p)-f);
     if(want===0) continue;
     if(c.dir!==0&&want!==c.dir) continue;
-    if(zoneOnly&&c.zone&&(p.dest<c.zone[0]||p.dest>c.zone[1])) continue;
+    if(zoneOnly&&c.zone&&(legDest(p)<c.zone[0]||legDest(p)>c.zone[1])) continue;
     return i;
   }
   return -1;
@@ -196,14 +200,18 @@ export function stepDoors(s,dt){
   c.doorT-=dt; c.xferT+=dt; c.openT+=dt;
   let guard=0;
   while(c.xferT>=per && guard++<400){
-    const ai=c.riders.findIndex(p=>p.dest===f);
+    const ai=c.riders.findIndex(p=>legDest(p)===f);
     if(ai>=0){
       const p=c.riders[ai]; c.riders.splice(ai,1);
+      /* Record the WAIT for this leg, but not a completed trip: a journey may
+         have several legs and must count once. finishTrip books the journey. */
       const w=p.boardedAt-p.waitStart;
-      G.today.trips++; G.today.waitSum+=w;
+      G.today.waitSum+=w;
       G.floors[p.home].waitSum+=w; G.floors[p.home].waitN++;
-      if(p.exiting){ p.state='out'; p.floor=OUTSIDE; }
-      else { p.floor=f; p.state='settle'; p.x=s.bay+0.5; }
+      /* Do NOT call into people.js from here: lifts <-> people would be an
+         import cycle, which the bundler rejects. Park them and let sim.js,
+         which already depends on both, start their next leg. */
+      p.floor=f; p.x=s.bay+0.5; p.state='transfer';
       c.xferT-=per; continue;
     }
     let bi=boarderAt(s,f,true);
@@ -211,11 +219,11 @@ export function stepDoors(s,dt){
     if(bi<0) break;
     const p=G.queue[f][bi]; G.queue[f].splice(bi,1);
     p.state='ride'; p.boardedAt=G.simT;
-    c.riders.push(p); c.stops.add(p.dest);
-    if(c.dir===0) c.dir=Math.sign(p.dest-f);
+    c.riders.push(p); c.stops.add(legDest(p));
+    if(c.dir===0) c.dir=Math.sign(legDest(p)-f);
     c.xferT-=per;
   }
-  const moreOff=c.riders.some(p=>p.dest===f);
+  const moreOff=c.riders.some(p=>legDest(p)===f);
   const moreOn =boarderAt(s,f,false)>=0;
   if((c.doorT<=0 && !moreOff && !moreOn) || c.openT>doorMin()+14){
     c.state='idle'; decide(s);

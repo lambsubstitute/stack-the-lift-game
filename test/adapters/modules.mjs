@@ -5,6 +5,7 @@ import { MAX_FLOOR, DAY_END } from '../../src/config.js';
 import { setSeed } from '../../src/rng.js';
 import { buildShaft, upgradeShaft, coreBays } from '../../src/lifts.js';
 import { spawnFloor, scheduleAll } from '../../src/people.js';
+import { invalidateRoutes } from '../../src/routes.js';
 import { step, startDay } from '../../src/sim.js';
 import { endOfDay } from '../../src/economy.js';
 
@@ -27,7 +28,7 @@ export function createModuleAdapter() {
       G.floors[f].age = 0;
       spawnFloor(f);
     },
-    beginDay() { scheduleAll(); startDay(); },
+    beginDay() { invalidateRoutes(); scheduleAll(); startDay(); },
     runDay() {
       while (G.simT < DAY_END) step(1.25);
       return { ...G.today };

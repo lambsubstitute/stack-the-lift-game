@@ -92,6 +92,13 @@ export const STAR_REQ=[null,null,
 
 export const MAINT_PER_FLOOR=85;
 
+/* Money with teeth. Cash used to go negative with no consequence at all — a
+   test bot reached -$122,000 and carried on building. An overdraft costs real
+   interest, and living in one for too long ends the run. */
+export const OVERDRAFT_RATE = 0.03;     // per day, on the balance owed
+export const OVERDRAFT_LIMIT = -250000; // below this you are finished
+export const DEBT_GRACE_DAYS = 5;       // days overdrawn before the bank calls it in
+
 export const OUTSIDE=-1;
 
 export const SKY=[

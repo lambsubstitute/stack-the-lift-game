@@ -1,6 +1,7 @@
 /* Rent, satisfaction, amenities and star ratings. */
 
-import { AMENITY_KEYS, CONN, MAINT_PER_FLOOR, STAR_REQ, TEN } from './config.js';
+import { AMENITY_KEYS, CONN, DEBT_GRACE_DAYS, MAINT_PER_FLOOR, OVERDRAFT_LIMIT,
+         OVERDRAFT_RATE, STAR_REQ, TEN } from './config.js';
 import { linkAt } from './connectors.js';
 import { spanOf, upgTotal } from './lifts.js';
 import { despawnFloor } from './people.js';
@@ -78,8 +79,20 @@ export function endOfDay(){
   G.cash += rent-maint;
   for(const f of lost){ despawnFloor(f); G.floors[f]={...newFloor(), sat:60}; }
 
+  /* Interest on an overdraft, and a bank that eventually loses patience. */
+  let interest=0;
+  if(G.cash<0){
+    interest=Math.round(-G.cash*OVERDRAFT_RATE);
+    G.cash-=interest;
+    G.debtDays++;
+  } else {
+    G.debtDays=0;
+  }
+  const bankrupt = G.cash<OVERDRAFT_LIMIT || G.debtDays>DEBT_GRACE_DAYS;
+
   let rose=false;
   while(G.star<5 && reqStatus(G.star+1).every(r=>r.met)){ G.star++; rose=true; }
-  return { rent, maint, lost, unhappy, rose, cash: G.cash, star: G.star };
+  return { rent, maint, interest, lost, unhappy, rose, bankrupt,
+           debtDays: G.debtDays, cash: G.cash, star: G.star };
 }
 

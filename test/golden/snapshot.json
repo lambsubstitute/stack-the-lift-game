@@ -32,23 +32,23 @@
     "coreBays": 60,
     "days": [
       {
-        "trips": 1463,
-        "gaveUp": 336,
-        "waitSum": 24540,
-        "rent": 40794,
+        "trips": 1321,
+        "gaveUp": 403,
+        "waitSum": 30508.75,
+        "rent": 39426,
         "maint": 5100,
         "star": 5,
-        "satisfaction": 68.32,
+        "satisfaction": 63.26,
         "tenants": 19
       },
       {
-        "trips": 1511,
-        "gaveUp": 313,
-        "waitSum": 31457.5,
-        "rent": 38276,
+        "trips": 1368,
+        "gaveUp": 380,
+        "waitSum": 23277.5,
+        "rent": 35760,
         "maint": 5100,
         "star": 5,
-        "satisfaction": 59.05,
+        "satisfaction": 49.79,
         "tenants": 19
       }
     ]
@@ -59,9 +59,9 @@
     "coreBays": 60,
     "days": [
       {
-        "trips": 1834,
-        "gaveUp": 678,
-        "waitSum": 100297.5,
+        "trips": 1765,
+        "gaveUp": 713,
+        "waitSum": 113631.25,
         "rent": 60339,
         "maint": 5100,
         "star": 5,
@@ -76,13 +76,13 @@
     "coreBays": 48,
     "days": [
       {
-        "trips": 1489,
-        "gaveUp": 509,
-        "waitSum": 27338.75,
-        "rent": 47997,
+        "trips": 1628,
+        "gaveUp": 445,
+        "waitSum": 37898.75,
+        "rent": 48225,
         "maint": 6691,
         "star": 5,
-        "satisfaction": 64.09,
+        "satisfaction": 64.78,
         "tenants": 23
       }
     ]
@@ -93,13 +93,13 @@
     "coreBays": 84,
     "days": [
       {
-        "trips": 1309,
-        "gaveUp": 9,
-        "waitSum": 20876.12,
-        "rent": 48912,
+        "trips": 1299,
+        "gaveUp": 427,
+        "waitSum": 62937.64,
+        "rent": 43583,
         "maint": 6408,
         "star": 5,
-        "satisfaction": 85.13,
+        "satisfaction": 68.91,
         "tenants": 23
       }
     ]
@@ -127,23 +127,23 @@
     "coreBays": 66,
     "days": [
       {
-        "trips": 1745,
-        "gaveUp": 303,
-        "waitSum": 32321.25,
-        "rent": 53615,
+        "trips": 1664,
+        "gaveUp": 368,
+        "waitSum": 47223.75,
+        "rent": 51698,
         "maint": 5610,
         "star": 5,
-        "satisfaction": 76.67,
+        "satisfaction": 70.52,
         "tenants": 21
       },
       {
-        "trips": 1863,
-        "gaveUp": 214,
-        "waitSum": 35011.25,
-        "rent": 54130,
+        "trips": 1469,
+        "gaveUp": 551,
+        "waitSum": 37556.25,
+        "rent": 48536,
         "maint": 5610,
         "star": 5,
-        "satisfaction": 78.52,
+        "satisfaction": 61.48,
         "tenants": 21
       }
     ]
@@ -154,23 +154,23 @@
     "coreBays": 104,
     "days": [
       {
-        "trips": 1801,
-        "gaveUp": 64,
-        "waitSum": 30447.5,
-        "rent": 54623,
+        "trips": 1667,
+        "gaveUp": 127,
+        "waitSum": 29162.5,
+        "rent": 54014,
         "maint": 8840,
         "star": 5,
-        "satisfaction": 82.16,
+        "satisfaction": 80.48,
         "tenants": 25
       },
       {
-        "trips": 1806,
-        "gaveUp": 65,
-        "waitSum": 32441.25,
-        "rent": 55614,
+        "trips": 1600,
+        "gaveUp": 209,
+        "waitSum": 35597.5,
+        "rent": 53102,
         "maint": 8840,
         "star": 5,
-        "satisfaction": 85.32,
+        "satisfaction": 78.16,
         "tenants": 25
       }
     ]

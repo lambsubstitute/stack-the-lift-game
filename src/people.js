@@ -1,8 +1,9 @@
 /* Population, daily schedules, and the choice between waiting and climbing. */
 
 import { BAYS, OUTSIDE, TEN } from './config.js';
-import { connBay, walkRoute } from './connectors.js';
-import { carCap, carSpd, shaftsFor } from './lifts.js';
+import { connBay } from './connectors.js';
+import { planRoute } from './routes.js';
+import { carCap, carSpd, ctrlOf, shaftsFor } from './lifts.js';
 import { gauss, pick, rnd } from './rng.js';
 import { G, eatFloors, height } from './state.js';
 
@@ -80,17 +81,69 @@ export function liftEstimate(a,b){
   return {time:bt, shaft:best};
 }
 
+/* A trip is now a PLAN: a list of legs, each either a lift ride or a climb.
+   That is what lets one journey be "escalator to the sky lobby, express to the
+   top" instead of forcing an all-or-nothing choice between the two. */
 export function beginTrip(p,to,exit){
   p.dest=to; p.exiting=!!exit;
   if(to===p.floor){ if(exit){p.state='out';p.floor=OUTSIDE;} else p.state='settle'; return; }
-  const w=walkRoute(p.floor,to), l=liftEstimate(p.floor,to);
-  if(!w && !l){ p.state='settled'; p.stuck=true; return; }
-  if(!l || (w && w.time + w.discomfort*1.4 < l.time)){
-    p.mode='climb'; p.shaft=null; p.cDir=Math.sign(to-p.floor);
-    p.discomfort=w.discomfort; p.state='walk';
+
+  const plan=planRoute(p.floor,to);
+  if(!plan || !plan.legs.length){ p.state='settled'; p.stuck=true; return; }
+
+  p.plan=plan.legs;
+  p.leg=0;
+  p.discomfort=plan.discomfort;
+  startLeg(p);
+}
+
+/** Set the person walking towards whatever their current leg needs. */
+export function startLeg(p){
+  const leg=p.plan?.[p.leg];
+  if(!leg){ finishTrip(p); return; }
+  if(leg.kind==='climb'){
+    p.mode='climb'; p.shaft=null; p.cDir=Math.sign(leg.to-p.floor);
   } else {
-    p.mode='lift'; p.shaft=l.shaft; p.discomfort=0; p.state='walk';
+    /* The PLAN says which legs to make; it must not pin the car. Routes are
+       cached, so baking in one shaft sent every identical journey to the same
+       car while its neighbours ran empty — on a podium tower that took stranded
+       passengers from 9 to 428. Choose among the shafts that can do this leg,
+       now, by how busy they actually are. */
+    p.mode='lift';
+    p.shaft=pickShaft(p.floor, leg.to) ?? leg.shaft;
   }
+  p.legDest=leg.to;
+  p.state='walk';
+}
+
+/** Advance to the next leg, or finish. Called when a leg's destination is reached. */
+export function nextLeg(p){
+  p.leg++;
+  if(p.leg>=p.plan.length){ finishTrip(p); return; }
+  startLeg(p);
+}
+
+/* Which car to take for this leg.
+
+   Without group control you press a button for a particular lift and commit to
+   it — all you can judge is where the indicator says the car is. A group
+   controller is precisely the thing that assigns you the best car knowing every
+   car's load. Giving that knowledge to everyone made the upgrade worthless,
+   which is a modelling error, not a balance one. */
+export function pickShaft(a,b){
+  const opts=shaftsFor(a,b);
+  if(!opts.length) return null;
+  const grouped=opts.some(s=>ctrlOf(s)>=1);
+  let best=opts[0], bs=Infinity;
+  for(const s of opts){
+    const c=s.car;
+    const sc = grouped
+      ? Math.abs(c.y-a) + c.stops.size*1.6 + c.riders.length*0.5
+        + (G.queue[a].filter(w=>w.shaft===s).length/Math.max(1,carCap(s)))*22
+      : Math.abs(c.y-a);                       // just the indicator
+    if(sc<bs){bs=sc;best=s;}
+  }
+  return best;
 }
 
 export function walkTargetX(p){
@@ -101,10 +154,14 @@ export function walkTargetX(p){
   return p.shaft ? p.shaft.bay+0.5 : p.x;
 }
 
+/** One journey completed — counted once, however many legs it took. */
 export function finishTrip(p){
   G.today.trips++;
-  G.today.waitSum+=p.discomfort;
-  G.floors[p.home].waitSum+=p.discomfort; G.floors[p.home].waitN++;
+  if(p.discomfort){
+    G.today.waitSum+=p.discomfort;
+    G.floors[p.home].waitSum+=p.discomfort; G.floors[p.home].waitN++;
+  }
+  p.plan=null; p.leg=0; p.legDest=undefined;
   if(p.exiting){ p.state='out'; p.floor=OUTSIDE; }
   else { p.state='settle'; }
 }

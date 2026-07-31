@@ -10,6 +10,8 @@ import { rentMult, satBonus, reqStatus, reqProgress } from './economy.js';
 import { startDay } from './sim.js';
 import { draw, stage } from './render.js';
 import { tutorialSaw } from './tutorial.js';
+import { save, clearSave } from './save.js';
+import { invalidateRoutes } from './routes.js';
 
 /* ==========================================================================
    UI
@@ -24,6 +26,7 @@ export function renderAll(){ renderPanel(); renderTenants(); renderAmenitySummar
 export function renderPanel(){
   $('money').textContent=money(G.cash);
   $('money').className='money'+(G.cash<0?' neg':'');
+  $('daylbl').classList.toggle('warn', G.cash<0);
   $('daylbl').textContent=`Day ${G.day} · ${hhmm(G.simT)}`;
   $('stars').innerHTML='★'.repeat(G.star)+(G.star<5?'<s>'+'★'.repeat(5-G.star)+'</s>':'');
   const pop=totalPop();
@@ -145,7 +148,7 @@ export function renderShafts(){
       G.cash-=c; s.top=height()-1; renderAll();
     };
     const rm=document.createElement('button'); rm.textContent='×';
-    rm.onclick=()=>{ if(G.selShaft===s) G.selShaft=null; G.shafts.splice(i,1); rescue(); renderAll(); };
+    rm.onclick=()=>{ if(G.selShaft===s) G.selShaft=null; G.shafts.splice(i,1); invalidateRoutes(); rescue(); renderAll(); };
     d.appendChild(ext); d.appendChild(rm); el.appendChild(d);
   });
   if(!G.shafts.length) el.innerHTML='<div class="mini">No lifts. Nobody can get anywhere.</div>';
@@ -174,7 +177,7 @@ function renderUpgrades(){
     else {
       b.textContent=`${nx.label} — ${money(nx.cost)}`;
       b.disabled=nx.cost>G.cash;
-      b.onclick=()=>{ const err=upgradeShaft(s,k);
+      b.onclick=()=>{ const err=upgradeShaft(s,k); invalidateRoutes();
         if(err) toast(err); else toast(`${UPG[k].name}: ${nx.label} fitted. Maintenance goes up with it.`);
         renderAll(); };
     }
@@ -255,13 +258,13 @@ function connectorHTML(f){
 }
 function wireConnectors(f){
   const rm=$('rmConn');
-  if(rm) rm.onclick=()=>{ G.links[f]=null; renderAll(); };
+  if(rm) rm.onclick=()=>{ G.links[f]=null; invalidateRoutes(); renderAll(); };
   document.querySelectorAll('.connBtn').forEach(b=>{
     b.onclick=()=>{
       const k=b.getAttribute('data-k'), C=CONN[k];
       if(C.star>G.star){ toast(`${C.name} needs ★${C.star}.`); return; }
       if(C.cost>G.cash){ toast('Not enough cash.'); return; }
-      G.cash-=C.cost; G.links[f]={kind:k};
+      G.cash-=C.cost; G.links[f]={kind:k}; invalidateRoutes();
       toast(k==='esc'
         ? 'Escalator in. It never queues — but people will only chain a few before they resent it.'
         : 'Stairs in. Almost free, almost no space, and almost nobody will climb more than two flights.');
@@ -270,17 +273,20 @@ function wireConnectors(f){
   });
 }
 
-export function showEOD({rent,maint,lost,unhappy,rose}){
+export function showEOD({rent,maint,interest,lost,unhappy,rose,bankrupt,debtDays}){
   $('eodTitle').textContent=`Day ${G.day} closed`;
   $('eodStats').innerHTML=
     `<div><span>Rent collected</span><b class="good">${money(rent)}</b></div>
      <div><span>Lift maintenance</span><b class="bad">-${money(maint)}</b></div>
-     <div><span>Net</span><b class="${rent-maint>=0?'good':'bad'}">${money(rent-maint)}</b></div>
+     ${interest?`<div><span>Overdraft interest</span><b class="bad">-${money(interest)}</b></div>`:''}
+     <div><span>Net</span><b class="${rent-maint-interest>=0?'good':'bad'}">${money(rent-maint-interest)}</b></div>
      <div><span>Trips served</span><b>${G.today.trips}</b></div>
      <div><span>Gave up waiting</span><b class="${today.gave?'bad':''}">${G.today.gave}</b></div>
      <div><span>Cash</span><b>${money(G.cash)}</b></div>`;
   let note='';
-  if(rose) note=`★ The tower is now rated ${G.star} stars. New tenants, amenities and lift upgrades are available.`;
+  if(bankrupt) note='The bank has called in your overdraft. This tower is finished — start another.';
+  else if(G.cash<0) note=`You are ${money(-G.cash)} overdrawn, day ${debtDays} of ${5}. Interest is compounding.`;
+  else if(rose) note=`★ The tower is now rated ${G.star} stars. New tenants, amenities and lift upgrades are available.`;
   else if(lost.length) note=`${lost.length} tenant${lost.length>1?'s':''} gave up and left (floor${lost.length>1?'s':''} ${lost.join(', ')}). They were waiting too long, every G.day.`;
   else if(unhappy) note=`${unhappy} tenant${unhappy>1?'s are':' is'} unhappy with the lifts. Fix it before they leave.`;
   else if(G.today.gave>20) note=`${G.today.gave} G.people gave up waiting G.today. That number turns into departures.`;
@@ -297,6 +303,7 @@ export function showEOD({rent,maint,lost,unhappy,rose}){
   $('eod').classList.add('on');
 }
 $('eodNext').onclick=()=>{
+  save();
   $('eod').classList.remove('on');
   G.day++; startDay(); G.running=true; renderAll();
 };
@@ -312,7 +319,7 @@ $('sp60').onclick=()=>setSpeed(60);
 $('addFloor').onclick=()=>{
   const c=floorCost();
   if(c>G.cash||height()>=MAX_FLOOR) return;
-  G.cash-=c; G.floors.push(newFloor()); tutorialSaw('addFloor');
+  G.cash-=c; G.floors.push(newFloor()); invalidateRoutes(); tutorialSaw('addFloor');
   if(G.links.length<height()) G.links.length=height();
   $('sTop').value=height()-1;
   toast(`Floor ${height()-1} built. No lift reaches it yet.`);
@@ -323,11 +330,13 @@ $('extendAll').onclick=()=>{
   if(!c||c>G.cash) return;
   G.cash-=c;
   for(const s of G.shafts) if(s.top<height()-1) s.top=height()-1;
+  invalidateRoutes();
   toast('Every shaft now runs to the top — and occupies a bay on each new floor.');
   renderAll();
 };
 $('addShaft').onclick=()=>{
   const err=buildShaft(+$('sBot').value,+$('sTop').value,$('expr').checked);
+  invalidateRoutes();
   if(err) toast(err);
   else toast('Shaft built. That bay is now gone from every floor it passes.');
   renderAll();

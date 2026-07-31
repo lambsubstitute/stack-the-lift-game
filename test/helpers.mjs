@@ -5,6 +5,7 @@ import { DAY_END, MAX_FLOOR } from '../src/config.js';
 import { setSeed } from '../src/rng.js';
 import { buildShaft, upgradeShaft, coreBays } from '../src/lifts.js';
 import { spawnFloor, scheduleAll } from '../src/people.js';
+import { invalidateRoutes } from '../src/routes.js';
 import { step, startDay } from '../src/sim.js';
 import { endOfDay } from '../src/economy.js';
 
@@ -45,6 +46,7 @@ export function tower({
     G.floors[f].age = 0;
     spawnFloor(f);
   }
+  invalidateRoutes();
   scheduleAll();
   startDay();
   return G;

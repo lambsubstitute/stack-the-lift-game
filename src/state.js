@@ -18,6 +18,7 @@ export const G = {
   cash: 145000,
   day: 1,
   star: 1,
+  debtDays: 0,      // consecutive days ending overdrawn
   today: { trips: 0, waitSum: 0, gave: 0, rent: 0, maint: 0 },
 
   /* the clock */
@@ -46,6 +47,7 @@ export function resetWorld({ cash = 145000, floorCount = 6 } = {}) {
   G.cash = cash;
   G.day = 1;
   G.star = 1;
+  G.debtDays = 0;
   G.simT = DAY_START;
   G.selected = -1;
   G.selShaft = null;
