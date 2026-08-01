@@ -100,6 +100,14 @@ back out.
   the upgrade.
 - The skyline's lit windows were recomputed every frame, gated behind "is it
   dark", so the game ran fine all morning and seized up at dusk.
+- The refactor's mechanical rename leaked `G.` into on-screen prose ("Avg wait
+  G.today"), and in one place dropped the `G.` instead — `today.gave` killed the
+  end-of-day panel at 23:00. No test had ever driven a whole day through the
+  DOM. `bundle.test.js` now does, and `prose.test.js` fails on any state name
+  appearing in text a player reads.
+- The night-cost test was vacuous: it ran 4,000 frames at the default speed,
+  about forty-five minutes of game time, and compared midday against midday. It
+  now uses the ×60 control and asserts the clock reached the evening.
 
 ## Architecture
 

@@ -133,8 +133,14 @@ test('night costs no more to draw than midday', () => {
   g.frames(60);
   const midday = at() - before;
 
-  // jump the clock into the evening via the speed controls the player has
-  for (let i = 0; i < 4000 && !/2[0-2]:/.test(g.text('daylbl')); i++) g.frames(1);
+  /* Jump the clock into the evening using the speed control the player has.
+     This used to run 4,000 frames at the default speed, which is about
+     forty-five minutes of game time — it never got past breakfast, and the
+     "night" measurement below was really a second midday measurement. */
+  g.nodes.sp60.onclick();
+  let i = 0;
+  for (; i < 12000 && !/ 2[0-2]:/.test(g.text('daylbl')); i++) g.frames(1);
+  assert.match(g.text('daylbl'), / 2[0-2]:/, `the clock must actually reach the evening (${g.text('daylbl')} after ${i} frames)`);
 
   const mark = at();
   g.frames(60);
@@ -142,4 +148,37 @@ test('night costs no more to draw than midday', () => {
 
   assert.ok(night < midday * 1.6,
     `night frame cost must stay close to midday (midday ${midday}, night ${night})`);
+});
+
+test('a day closes and the end-of-day panel renders', () => {
+  /* REGRESSION: showEOD read a bare `today.gave`. The automated refactor
+     rewrote every other reference to G.today and missed that one, because it
+     sat inside a template literal alongside a dozen correct ones. Nothing threw
+     until a player reached 23:00 — and no test had ever driven a whole day
+     through the DOM, so the suite was green while the game died every evening.
+
+     It also guards the wider class of bug: the same rename leaked "G." into six
+     pieces of on-screen prose ("Avg wait G.today"), which prose.test.js checks
+     statically. This one proves the panel actually builds and reads sensibly. */
+  const g = boot();
+  g.nodes.sp60.onclick();
+
+  let i = 0;
+  for (; i < 20000 && !/closed$/.test(g.text('eodTitle')); i++) g.frames(1);
+
+  assert.equal(g.errors.length, 0, `console errors: ${g.errors.join(' | ')}`);
+  assert.match(g.text('eodTitle'), /^Day 1 closed$/, `the day must close (${i} frames)`);
+
+  const stats = g.nodes.eodStats.innerHTML;
+  for (const row of ['Rent collected', 'Lift maintenance', 'Net', 'Trips served', 'Gave up waiting', 'Cash'])
+    assert.ok(stats.includes(row), `the summary shows "${row}"`);
+  assert.match(stats, /\$[\d,]+/, 'and shows real money');
+  assert.ok(g.nodes.eodNote.textContent.length > 10, 'and says something about the day');
+  assert.ok(g.nodes.eod.classList.contains('on'), 'and the panel is actually shown');
+
+  // and tomorrow opens again
+  g.nodes.eodNext.onclick();
+  g.frames(10);
+  assert.equal(g.errors.length, 0, `console errors opening day 2: ${g.errors.join(' | ')}`);
+  assert.match(g.text('daylbl'), /^Day 2 · /, 'day two starts');
 });

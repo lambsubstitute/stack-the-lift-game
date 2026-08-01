@@ -36,7 +36,7 @@ While developing:
 
 ```bash
 npm run dev          # rebuild on every save
-npm test             # the whole suite, about 40 seconds
+npm test             # the whole suite, about 10 seconds
 npm run test:watch   # re-run on save
 ```
 
@@ -118,7 +118,7 @@ other module is pure enough to unit-test in Node with no browser.
 npm test
 ```
 
-65 tests, no framework — Node's built-in runner.
+68 tests, no framework — Node's built-in runner.
 
 **`golden.test.js` is the important one.** Eight scenarios were recorded from
 the original single-file build *before* the code was split into modules, and
@@ -146,7 +146,10 @@ The rest:
 | `routes.test.js` | multi-leg journeys, the cache, unreachable floors |
 | `save.test.js` | round-tripping a tower, and the overdraft rules |
 | `tutorial.test.js` | the five steps advance on the right actions |
-| `bundle.test.js` | the built file boots in a stub DOM and survives 400 frames |
+| `routes.test.js` | journey planning, including escalator-then-express through a sky lobby |
+| `save.test.js` | saving, restoring, and an overdraft that ends the run |
+| `bundle.test.js` | the built file boots in a stub DOM, survives 400 frames, and closes a full day |
+| `prose.test.js` | no state name leaked into text the player reads |
 
 Many tests name the bug they exist to prevent. Those comments are load-bearing —
 they are there so nobody "simplifies" a fix back out. A sample of what they

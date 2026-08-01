@@ -161,7 +161,7 @@ function renderUpgrades(){
   if(!G.selShaft || !G.shafts.includes(G.selShaft)){ box.style.display='none'; G.selShaft=null; return; }
   const s=G.selShaft;
   box.style.display='';
-  $('upgTitle').textContent=`Lift ${G.shafts.indexOf(s)+1} · G.floors ${s.bottom}–${s.top}${s.express?' (express)':''}`;
+  $('upgTitle').textContent=`Lift ${G.shafts.indexOf(s)+1} · floors ${s.bottom}–${s.top}${s.express?' (express)':''}`;
   el.innerHTML='';
   for(const k of UPG_KEYS){
     const cur=UPG[k].lv[s.up[k]], nx=upgCost(s,k);
@@ -230,8 +230,8 @@ export function renderSel(){
     `<div class="stats">
        <div><span>Satisfaction</span><b style="color:${col}">${Math.round(fl.sat)}%</b></div>
        <div><span>People</span><b>${t.pop}</b></div>
-       <div><span>Avg wait G.today</span><b>${fl.waitN?secs(avg):'—'}</b></div>
-       <div><span>Gave up G.today</span><b class="${fl.gave?'bad':''}">${fl.gave}</b></div>
+       <div><span>Avg wait today</span><b>${fl.waitN?secs(avg):'—'}</b></div>
+       <div><span>Gave up today</span><b class="${fl.gave?'bad':''}">${fl.gave}</b></div>
        <div><span>Rent</span><b>${money(Math.round(t.rent*rentMult(G.selected)))}${rentMult(G.selected)>1.001?' <em style="font-style:normal;color:#2F7D52">+'+Math.round((rentMult(G.selected)-1)*100)+'%</em>':''}</b></div>
      </div>`+
     (reach?'':`<div class="mini bad" style="margin-top:7px">No lift connects this floor to the lobby.</div>`)+
@@ -281,22 +281,22 @@ export function showEOD({rent,maint,interest,lost,unhappy,rose,bankrupt,debtDays
      ${interest?`<div><span>Overdraft interest</span><b class="bad">-${money(interest)}</b></div>`:''}
      <div><span>Net</span><b class="${rent-maint-interest>=0?'good':'bad'}">${money(rent-maint-interest)}</b></div>
      <div><span>Trips served</span><b>${G.today.trips}</b></div>
-     <div><span>Gave up waiting</span><b class="${today.gave?'bad':''}">${G.today.gave}</b></div>
+     <div><span>Gave up waiting</span><b class="${G.today.gave?'bad':''}">${G.today.gave}</b></div>
      <div><span>Cash</span><b>${money(G.cash)}</b></div>`;
   let note='';
   if(bankrupt) note='The bank has called in your overdraft. This tower is finished — start another.';
   else if(G.cash<0) note=`You are ${money(-G.cash)} overdrawn, day ${debtDays} of ${5}. Interest is compounding.`;
   else if(rose) note=`★ The tower is now rated ${G.star} stars. New tenants, amenities and lift upgrades are available.`;
-  else if(lost.length) note=`${lost.length} tenant${lost.length>1?'s':''} gave up and left (floor${lost.length>1?'s':''} ${lost.join(', ')}). They were waiting too long, every G.day.`;
+  else if(lost.length) note=`${lost.length} tenant${lost.length>1?'s':''} gave up and left (floor${lost.length>1?'s':''} ${lost.join(', ')}). They were waiting too long, every day.`;
   else if(unhappy) note=`${unhappy} tenant${unhappy>1?'s are':' is'} unhappy with the lifts. Fix it before they leave.`;
-  else if(G.today.gave>20) note=`${G.today.gave} G.people gave up waiting G.today. That number turns into departures.`;
+  else if(G.today.gave>20) note=`${G.today.gave} people gave up waiting today. That number turns into departures.`;
   else if(G.star<5){
     const short=reqStatus(G.star+1).filter(r=>!r.met)
       .sort((a,b)=>a.p-b.p)
       .map(r=>`${r.k.toLowerCase()} (${r.cur}${r.pct?'%':''} of ${r.need}${r.pct?'%':''})`);
     note = short.length
-      ? `A good G.day. For ★${G.star+1} you still need ${short.slice(0,2).join(', and ')}.`
-      : `A good G.day — and the tower qualifies for ★${G.star+1}.`;
+      ? `A good day. For ★${G.star+1} you still need ${short.slice(0,2).join(', and ')}.`
+      : `A good day — and the tower qualifies for ★${G.star+1}.`;
   }
   else note='A good day. Everyone got where they were going.';
   $('eodNote').textContent=note;

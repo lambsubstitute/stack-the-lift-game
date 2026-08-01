@@ -4,8 +4,8 @@
   "description": "A tower you build, let, and then have to keep moving.",
   "type": "module",
   "scripts": {
-    "test": "node --test \"test/**/*.test.js\"",
-    "test:watch": "node --test --watch \"test/**/*.test.js\"",
+    "test": "node --test test/*.test.js",
+    "test:watch": "node --test --watch test/*.test.js",
     "build": "node tools/build.mjs",
     "dev": "node tools/build.mjs --watch",
     "record": "node test/golden/record.mjs"
