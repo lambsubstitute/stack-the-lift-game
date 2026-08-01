@@ -130,7 +130,7 @@ moves a number you did not mean to move.
 If you change balance **on purpose**:
 
 ```bash
-npm run record       # re-record the snapshot from src/
+npm run record       # re-record the snapshot
 ```
 
 Commit the new `snapshot.json` as its own change so the diff is reviewable.
@@ -174,14 +174,14 @@ caught:
 
 ---
 
-## `legacy/` and `tools/split*.mjs`
+## `tools/split*.mjs`
 
-`legacy/stack.legacy.html` is the original single-file build, kept only so the
-golden master can be re-recorded from it with `npm run record -- --legacy`.
 `tools/split.mjs` and `tools/split-ui.mjs` are the one-shot scripts that
-performed the refactor — mechanical on purpose, because retyping 1,700 lines by
-hand is how you introduce silent behaviour changes. They never run again and can
-be deleted once you no longer care about the provenance.
+performed the refactor from a single 1,700-line file into `src/` — mechanical on
+purpose, because retyping that much code by hand is how you introduce silent
+behaviour changes. They never run again and are kept only as a record of how it
+was done. The pre-refactor build they read from has been retired; the golden
+snapshot is the record of its behaviour.
 
 ---
 
