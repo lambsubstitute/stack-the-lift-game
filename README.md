@@ -4,6 +4,8 @@
 
 A tower you build, let, and then have to keep moving.
 
+**[Play it in your browser →](https://lambsubstitute.github.io/stack-the-lift-game/)**
+
 You own a building. You let its floors, and the people who move in need to get
 to work in the morning and home again at night. Everything else follows from
 one rule:
