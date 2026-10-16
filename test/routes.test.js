@@ -85,3 +85,37 @@ test('a sky-lobby tower actually runs a day', () => {
   assert.ok(t.trips > 300, `people get to work through the sky lobby (${t.trips} trips)`);
   assert.ok(avgWait(t) < 200, `and not absurdly slowly (${avgWait(t).toFixed(0)}s)`);
 });
+
+test('extending a shaft by hand reaches the new floor without a refresh', () => {
+  /* The per-shaft "extend" button moved s.top and never told the route cache.
+     Anyone who had already asked for the new floor kept the cached "no route",
+     so its tenants never got to work — and a page refresh, which rebuilds the
+     cache, made the problem vanish. That is the "it gets stuck and you have to
+     refresh" report. The cache now notices the building change by itself. */
+  tower({ floors: 8, lifts: 0, use: null, seed: 4242 });
+  const err = buildShaft(0, 6, false);
+  assert.equal(err, null);
+  invalidateRoutes();
+  assert.equal(planRoute(0, 7), null, 'floor 7 starts unreachable');
+
+  G.shafts[0].top = 7;                       // exactly what the button does
+  const r = planRoute(0, 7);
+  assert.ok(r, 'after extending, floor 7 has a route with no explicit invalidate');
+  assert.equal(shape(r), 'lift->7');
+});
+
+test('a removed shaft is never handed back from the cache', () => {
+  tower({ floors: 8, lifts: 1, use: null, seed: 4242 });
+  assert.ok(planRoute(0, 7), 'route via the only lift');
+  G.shafts.splice(0, 1);                     // removed without an invalidate
+  assert.equal(planRoute(0, 7), null, 'no lift, no route');
+});
+
+test('a new stair is used without an explicit invalidate', () => {
+  tower({ floors: 8, lifts: 0, use: null, seed: 4242 });
+  buildShaft(0, 5, false);
+  invalidateRoutes();
+  assert.equal(planRoute(0, 6), null);
+  G.links[5] = { kind: 'stair' };
+  assert.equal(shape(planRoute(0, 6)), 'lift->5 climb->6');
+});

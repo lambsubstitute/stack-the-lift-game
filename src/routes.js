@@ -33,9 +33,29 @@ const CLIMB_WEIGHT = 1.4;        // how heavily discomfort counts against time
 const BOARD_BASE = 14;           // typical wait for a lift you have just called
 
 let cache = new Map();
+let cacheSig = '';
 
 /** Call whenever the building changes shape. */
-export function invalidateRoutes() { cache = new Map(); }
+export function invalidateRoutes() { cache = new Map(); cacheSig = ''; }
+
+/* Everything a journey plan depends on: how tall the tower is, where every
+   shaft runs and how fast it is, and which floors are joined by stairs or
+   escalators. planRoute checks this on every call and drops the cache when it
+   changes, so a caller that forgets invalidateRoutes() can no longer strand
+   anyone. One did: the per-shaft "extend" button moved s.top without it, so
+   whoever had already been told "no route" to a new floor kept that answer
+   for good — the floor stayed unreachable until the player refreshed the page,
+   which rebuilds the cache from scratch. */
+function buildingSig() {
+  let sig = height() + '|';
+  for (const s of G.shafts) {
+    sig += s.id + ':' + s.bottom + '-' + s.top + (s.express ? 'x' : '') + ':' +
+           s.up.motor + s.up.cabin + s.up.control + ',';
+  }
+  sig += '|';
+  for (let f = 0; f < G.links.length; f++) if (G.links[f]) sig += f + G.links[f].kind + ',';
+  return sig;
+}
 
 /** Typical, not instantaneous — see the note above. */
 function boardCost(s) {
@@ -47,6 +67,8 @@ function boardCost(s) {
  */
 export function planRoute(from, to) {
   if (from === to) return { legs: [], cost: 0 };
+  const sig = buildingSig();
+  if (sig !== cacheSig) { cache = new Map(); cacheSig = sig; }
   const key = from * 128 + to;
   if (cache.has(key)) return cache.get(key);
 

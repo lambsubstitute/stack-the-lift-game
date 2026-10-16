@@ -145,7 +145,7 @@ export function renderShafts(){
       if(s.top>=height()-1){ toast('Already reaches the top.'); return; }
       const c=extendCost(s);
       if(c>G.cash){ toast(`Extending costs ${money(c)}.`); return; }
-      G.cash-=c; s.top=height()-1; renderAll();
+      G.cash-=c; s.top=height()-1; invalidateRoutes(); renderAll();
     };
     const rm=document.createElement('button'); rm.textContent='×';
     rm.onclick=()=>{ if(G.selShaft===s) G.selShaft=null; G.shafts.splice(i,1); invalidateRoutes(); rescue(); renderAll(); };
