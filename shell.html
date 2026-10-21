@@ -120,5 +120,24 @@
 </script>
     <!-- Visitor counts (GoatCounter: no cookies, no personal data). It ignores file:// and localhost, so local copies and test runs aren't counted. -->
     <script data-goatcounter="https://lambsubstitute.goatcounter.com/count" async src="https://gc.zgo.at/count.js"></script>
+    <!-- Play time (GoatCounter events): one event per visit at 1, 5, 15 and 30 minutes, counting only time the tab is on screen. -->
+    <script>
+    (function () {
+        var GAME = 'stack-the-lift-game', MARKS = [1, 5, 15, 30], played = 0, sent = 0;
+        var last = document.hidden ? null : Date.now();
+        function tick() {
+            var now = Date.now();
+            if (last !== null) played += now - last;
+            last = document.hidden ? null : now;
+            while (sent < MARKS.length && played >= MARKS[sent] * 60000) {
+                if (!(window.goatcounter && window.goatcounter.count)) return;
+                var m = MARKS[sent++];
+                window.goatcounter.count({ path: GAME + '-played-' + m + 'm', title: 'Played ' + m + ' min', event: true });
+            }
+        }
+        document.addEventListener('visibilitychange', tick);
+        setInterval(tick, 5000);
+    })();
+    </script>
 </body>
 </html>
